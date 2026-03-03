@@ -1,0 +1,13 @@
+# Large prescribing data files (download from BSO OpenData NI)
+*.zip
+07.-gp-prescribing-*.csv
+08.-gp-prescribing-*.csv
+09.-gp-prescribing-*.csv
+
+# Excel temp files
+~$*
+
+# Python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
