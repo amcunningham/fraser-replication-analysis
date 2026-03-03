@@ -17,6 +17,7 @@ import warnings
 warnings.filterwarnings('ignore')
 
 OUT = '/sessions/modest-fervent-johnson/mnt/NI'
+REPO = '/sessions/modest-fervent-johnson/mnt/NI/fraser-replication'
 
 def safe_save(func, path, *args, **kwargs):
     """Try to save, skip if permission denied."""
@@ -96,7 +97,9 @@ BNF_NAMES = {
 # ============================================================
 print("Loading prescribing data...")
 dfs = []
-for f in ['07.-gp-prescribing-october-2025.csv', '08.-gp-prescribing-november-2025.csv', '09.-gp-prescribing-december-2025.csv']:
+for f in ['02.-gp-prescribing-may-2025.csv', '03.-gp-prescribing-june-2025.csv',
+          '04.-gp-prescribing-july-2025.csv', '05.-gp-prescribing-august-2025.csv',
+          '06.-gp-prescribing-september-2025.csv', '07.-gp-prescribing-october-2025.csv']:
     df = pd.read_csv(f'{OUT}/{f}', low_memory=False, encoding='latin-1')
     dfs.append(df)
 rx = pd.concat(dfs, ignore_index=True)
@@ -307,7 +310,7 @@ summary = {
     'BNF_Sections_Analyzed': len(res_df),
     'Prespecified_Significant': int(res_df[res_df['Prespecified'] & res_df['Significant']].shape[0]),
     'Total_Significant': int(res_df['Significant'].sum()),
-    'Quarter': 'Q4 2025 (Oct-Dec)',
+    'Quarter': 'May-Oct 2025 (6 months)',
     'Total_Actual_Cost': float(rx['Actual Cost (£)'].sum()),
 }
 try:
@@ -373,7 +376,7 @@ for idx, (sec, name) in enumerate(zip(key_sections, key_names)):
     ax.set_xlabel('Ward Deprivation Rank\n(1 = most deprived)', fontsize=9)
     ax.set_ylabel('Items per 1,000 PRP', fontsize=9)
 
-fig.suptitle('GP Prescribing by Ward Deprivation: Selected BNF Sections (Q4 2025)', fontsize=14, y=1.02)
+fig.suptitle('GP Prescribing by Ward Deprivation: Selected BNF Sections (May-Oct 2025)', fontsize=14, y=1.02)
 plt.tight_layout()
 try:
     fig.savefig(f'{OUT}/figure2_scatter_plots.png', dpi=150, bbox_inches='tight')
@@ -391,7 +394,7 @@ bars1 = ax.bar(x - width/2, prespec_df['D1_Mean'], width, label='D1 (Most Depriv
 bars2 = ax.bar(x + width/2, prespec_df['D10_Mean'], width, label='D10 (Least Deprived)', color='#3498db', alpha=0.8)
 
 ax.set_ylabel('Mean Items per 1,000 PRP', fontsize=12)
-ax.set_title('Prescribing Rates: Most vs Least Deprived Deciles\n12 Prespecified BNF Sections (Q4 2025)', fontsize=13)
+ax.set_title('Prescribing Rates: Most vs Least Deprived Deciles\n12 Prespecified BNF Sections (May-Oct 2025)', fontsize=13)
 ax.set_xticks(x)
 ax.set_xticklabels([f"{row['BNF_Section']}\n{row['BNF_Name'][:15]}" for _, row in prespec_df.iterrows()],
                     rotation=45, ha='right', fontsize=9)
@@ -459,7 +462,7 @@ bars1 = ax.barh(y_pos - height/2, comp_df['Original_2019'].fillna(0), height,
                 label='Fraser & Frazer (2020) [May-Oct 2019]', color='#3498db', alpha=0.8,
                 edgecolor='black', linewidth=0.5)
 bars2 = ax.barh(y_pos + height/2, comp_df['Q4_2025'], height,
-                label='This Replication [Oct-Dec 2025]', color='#e74c3c', alpha=0.8,
+                label='This Replication [May-Oct 2025]', color='#e74c3c', alpha=0.8,
                 edgecolor='black', linewidth=0.5)
 
 ax.set_yticks(y_pos)
@@ -638,18 +641,18 @@ html = f"""<!DOCTYPE html>
 <div class="container">
 <header>
     <h1>Replication of Fraser & Frazer (2020): GP Prescribing and Deprivation in Northern Ireland</h1>
-    <p class="subtitle">Using Q4 2025 Prescribing Data (October&ndash;December 2025)</p>
+    <p class="subtitle">Using May&ndash;October 2025 Prescribing Data (6-month period)</p>
     <p class="metadata">Analysis date: March 2026 | Data sources: OpenDataNI GP Prescribing, NISRA Postcode Directory, NIMDM 2017</p>
 </header>
 
 <h2>1. Introduction</h2>
-<p>This report replicates the methodology of Fraser & Frazer (2020), which explored the relationship between socioeconomic deprivation and GP prescribing patterns in Northern Ireland using open-source data. The original study used prescribing data from October&ndash;December 2017; this replication uses the corresponding quarter from 2025 to examine whether the same patterns persist eight years later.</p>
+<p>This report replicates the methodology of Fraser & Frazer (2020), which explored the relationship between socioeconomic deprivation and GP prescribing patterns in Northern Ireland using open-source data. The original study used prescribing data from May&ndash;October 2019 (6 months); this replication uses the same months from 2025 (May&ndash;October) to examine whether the same patterns persist six years later.</p>
 <p>The original study found statistically significant correlations between ward-level deprivation (measured by the Northern Ireland Multiple Deprivation Measure 2017) and prescribing rates across all 12 prespecified BNF sections, with higher prescribing in more deprived areas.</p>
 
 <h2>2. Methods</h2>
 <h3>2.1 Data Sources</h3>
 <div class="summary-box">
-    <p><strong>Prescribing data:</strong> GP prescribing data for October, November and December 2025 from OpenDataNI ({summary['Total_Prescription_Items']:,} total items across {summary['Total_Practices']} practices).</p>
+    <p><strong>Prescribing data:</strong> GP prescribing data for May&ndash;October 2025 (6 months) from OpenDataNI ({summary['Total_Prescription_Items']:,} total items across {summary['Total_Practices']} practices).</p>
     <p><strong>Practice data:</strong> GP Practice Reference File (January 2026) providing practice postcodes, LCG membership and registered patient numbers ({summary['Total_Registered_Patients']:,} total registered patients).</p>
     <p><strong>Deprivation data:</strong> Northern Ireland Multiple Deprivation Measure 2017 (NIMDM 2017), providing deprivation ranks for 4,537 Small Areas.</p>
     <p><strong>Geography:</strong> NISRA Central Postcode Directory mapping practice postcodes to Small Areas (SA2011) and Electoral Wards (WARD1992).</p>
@@ -729,7 +732,7 @@ html = f"""<!DOCTYPE html>
 
 <h2>4. Comparison with Fraser &amp; Frazer (2020)</h2>
 
-<p>Table 4 directly compares Kendall&rsquo;s tau correlation coefficients from the original study (May&ndash;October 2019, 6 months, 174 wards) with this replication (October&ndash;December 2025, 3 months, 178 wards) for all 12 prespecified BNF sections.</p>
+<p>Table 4 directly compares Kendall&rsquo;s tau correlation coefficients from the original study (May&ndash;October 2019, 6 months, 174 wards) with this replication (May&ndash;October 2025, 6 months, 178 wards) for all 12 prespecified BNF sections.</p>
 
 <table>
 <thead>
@@ -762,7 +765,7 @@ html = f"""<!DOCTYPE html>
 
 <h3>4.2 Possible Explanations for Attenuation</h3>
 
-<p>The generally weaker correlations in 2025 could reflect several factors. First, this replication uses 3 months of data compared to the original&rsquo;s 6 months, reducing statistical power. Second, COVID-19 and its aftermath may have disrupted established prescribing patterns. Third, targeted public health interventions and prescribing guidelines implemented since 2019 may have begun to reduce deprivation-related disparities in some areas. Finally, changes in the practice landscape (mergers, closures, boundary changes) may have altered the relationship between practice location and catchment deprivation.</p>
+<p>The generally weaker correlations in 2025 could reflect several factors. First, COVID-19 and its aftermath may have disrupted established prescribing patterns. Second, targeted public health interventions and prescribing guidelines implemented since 2019 may have begun to reduce deprivation-related disparities in some areas. Third, changes in the practice landscape (mergers, closures, boundary changes) may have altered the relationship between practice location and catchment deprivation.</p>
 
 <h3>4.3 Individual Drug Patterns</h3>
 <p>Among individual antidepressants, mirtazapine (&tau;&nbsp;=&nbsp;{drug_df[drug_df['Drug']=='Mirtazapine']['Kendall_Tau'].values[0]:.3f}) and amitriptyline (&tau;&nbsp;=&nbsp;{drug_df[drug_df['Drug']=='Amitriptyline']['Kendall_Tau'].values[0]:.3f}) showed the strongest deprivation gradients, while citalopram and duloxetine did not reach significance. The original paper found metformin to have the strongest individual drug correlation of those plotted (&tau;&nbsp;=&nbsp;&minus;0.372); this replication confirms that pattern (&tau;&nbsp;=&nbsp;{drug_df[drug_df['Drug']=='Metformin']['Kendall_Tau'].values[0]:.3f}), consistent with the well-documented socioeconomic gradient in type 2 diabetes prevalence.</p>
@@ -782,7 +785,7 @@ html = f"""<!DOCTYPE html>
 <div class="caution">
 <p><strong>Other limitations:</strong></p>
 <p>&bull; <strong>Deprivation measure:</strong> NIMDM 2017 was used for both the original study and this replication, now nearly nine years old. An updated deprivation measure might show different spatial patterns, particularly given the economic impacts of Brexit and COVID-19 on NI communities.</p>
-<p>&bull; <strong>Temporal scope:</strong> This replication uses one quarter (Q4 2025) compared to the original&rsquo;s two quarters (May&ndash;Oct 2019). This halves the prescribing volume and may reduce statistical power, potentially explaining some of the attenuation in correlation magnitudes.</p>
+<p>&bull; <strong>Temporal scope:</strong> This replication uses a 6-month period (May&ndash;Oct 2025), matching the original&rsquo;s 6-month period (May&ndash;Oct 2019), providing comparable prescribing volumes for analysis.</p>
 <p>&bull; <strong>Ward boundaries:</strong> 1992 ward boundaries were used for comparability with the original study. These historical boundaries may no longer reflect meaningful community units.</p>
 <p>&bull; <strong>Multi-practice wards:</strong> Where multiple practices share a ward, registered patient totals are summed. However, some wards contain practices whose combined lists substantially exceed the resident population, indicating patients travelling in from other areas. This further compounds the practice-postcode limitation above.</p>
 <p>&bull; <strong>Items vs Defined Daily Doses:</strong> Prescribing volume is measured in items rather than DDDs, which does not account for variation in dosage, formulation or duration of treatment.</p>
@@ -791,7 +794,7 @@ html = f"""<!DOCTYPE html>
 </div>
 
 <div class="footer">
-    <p><strong>Data sources:</strong> OpenDataNI GP Prescribing Data (Oct&ndash;Dec 2025); GP Practice Reference File (Jan 2026); NIMDM 2017 (NISRA); NISRA Central Postcode Directory.</p>
+    <p><strong>Data sources:</strong> OpenDataNI GP Prescribing Data (May&ndash;Oct 2025); GP Practice Reference File (Jan 2026); NIMDM 2017 (NISRA); NISRA Central Postcode Directory.</p>
     <p><strong>Reference:</strong> Fraser C, Frazer K. Exploring GP prescribing in Northern Ireland by deprivation index using open-source data. <em>Ulster Med J</em> 2020;89(2):107&ndash;112.</p>
     <p><strong>Analysis:</strong> Conducted March 2026. Statistical analysis performed in Python (pandas, scipy, matplotlib).</p>
 </div>
